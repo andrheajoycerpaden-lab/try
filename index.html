@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1st</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wine:#1d0710; --ink:#fbefe8; --gold:#e2b45a;
+  --env:#f6e4df; --flap:#ecd0cd; --inside:#c98a96; --seal:#7b1230; --stem:#4d6a48;
+  --paper:#fffaf5; --btn:#7b1230;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--wine);color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;overflow-x:hidden}
+
+/* photo background */
+.bg{position:fixed;inset:-20px;z-index:0;background:radial-gradient(circle at 50% 30%,#5a1228,#1d0710 70%) center/cover no-repeat;transition:opacity 1s}
+.bg.has{filter:blur(3px) saturate(.9)}
+.shade{position:fixed;inset:0;z-index:1;
+  background:radial-gradient(ellipse at 50% 45%,rgba(29,7,16,.15),rgba(29,7,16,.8) 100%),linear-gradient(180deg,rgba(29,7,16,.5),rgba(29,7,16,.7))}
+
+main{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 16px 36px}
+h1{margin:0;text-align:center;font-style:italic;font-weight:600;font-size:clamp(34px,10vw,52px);line-height:1.05;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+.sub{margin:10px 0 0;font-size:19px;font-style:italic;color:var(--gold);text-align:center;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+
+/* envelope */
+.scene{position:relative;width:280px;height:190px;margin-top:260px;perspective:900px;cursor:pointer;filter:drop-shadow(0 18px 24px rgba(0,0,0,.45))}
+.back{position:absolute;inset:0;background:var(--inside);border-radius:6px}
+.bouquet{position:absolute;inset:0;z-index:2}
+.stem{position:absolute;bottom:70px;left:calc(50% - 2px);width:4px;height:0;background:var(--stem);border-radius:2px;
+  transform-origin:bottom center;transform:rotate(var(--a));transition:height 1.4s cubic-bezier(.2,.8,.2,1) var(--d)}
+.open .stem{height:var(--h)}
+.stem::before,.stem::after{content:"";position:absolute;width:0;height:0;background:var(--stem);opacity:0;
+  transition:width .8s ease calc(var(--d) + .6s),height .8s ease calc(var(--d) + .6s),opacity .3s calc(var(--d) + .6s)}
+.stem::before{right:3px;bottom:28%;border-radius:100% 0 100% 0;transform-origin:right center;transform:rotate(22deg)}
+.stem::after{left:3px;bottom:46%;border-radius:0 100% 0 100%;transform-origin:left center;transform:rotate(-22deg)}
+.open .stem::before,.open .stem::after{width:28px;height:13px;opacity:1}
+.flower{position:absolute;top:0;left:50%;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2)}
+.flower svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));
+  transform:scale(0) rotate(-120deg);transition:transform 1.3s cubic-bezier(.2,1.2,.3,1) calc(var(--d) + .8s)}
+.open .flower svg{transform:scale(1) rotate(0)}
+.pocket{position:absolute;inset:0;z-index:3;filter:drop-shadow(0 -1px 2px rgba(74,16,32,.3))}
+.pocket i{position:absolute;inset:0;background:var(--env)}
+.pocket .l{clip-path:polygon(0 0,52% 56%,0 100%)}
+.pocket .r{clip-path:polygon(100% 0,48% 56%,100% 100%);filter:brightness(.97)}
+.pocket .b{clip-path:polygon(0 100%,50% 54%,100% 100%);background:#fbeeea}
+.flap{position:absolute;left:0;top:0;width:100%;height:112px;background:var(--flap);z-index:4;
+  clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform .8s ease,z-index 0s .35s}
+.open .flap{transform:rotateX(180deg);z-index:1}
+.seal{position:absolute;z-index:5;left:calc(50% - 21px);top:90px;width:42px;height:42px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#a8274a,#6a0e28);display:grid;place-items:center;color:#f6d3d9;font-size:18px;
+  box-shadow:0 3px 6px rgba(0,0,0,.4);transition:opacity .3s,transform .3s}
+.open .seal{opacity:0;transform:scale(.4)}
+
+button,label{font:inherit;cursor:pointer}
+.go{margin-top:46px;padding:13px 34px;border:1.5px solid var(--gold);border-radius:999px;background:rgba(123,18,48,.85);color:var(--ink);
+  font-size:21px;font-style:italic;box-shadow:0 6px 20px rgba(0,0,0,.4);backdrop-filter:blur(4px)}
+.go:focus-visible,.close:focus-visible,.addphoto:focus-within{outline:3px solid var(--gold);outline-offset:3px}
+.addphoto{position:fixed;z-index:6;top:calc(12px + env(safe-area-inset-top,0px));right:12px;padding:6px 14px;border-radius:999px;
+  background:rgba(0,0,0,.4);color:var(--ink);font-size:16px;font-style:italic}
+.addphoto.second{top:calc(52px + env(safe-area-inset-top,0px))}
+.addphoto input{position:absolute;opacity:0;width:1px;height:1px}
+
+/* bouquet: greens + ribbon */
+.stem.green{--stem:#3f5c3a}
+.leaf{position:absolute;top:0;left:50%;width:32px;height:66px;margin:-60px 0 0 -16px;background:var(--stem);
+  border-radius:50% 50% 50% 50% / 78% 78% 22% 22%;transform:scale(0);transform-origin:bottom center;
+  transition:transform .9s cubic-bezier(.2,1.2,.3,1) calc(var(--d) + .7s)}
+.open .leaf{transform:scale(1)}
+.bow{position:absolute;left:50%;bottom:118px;width:0;height:0;opacity:0;transform:scale(.3);
+  transition:opacity .5s 1.4s,transform .7s cubic-bezier(.2,1.4,.3,1) 1.4s}
+.open .bow{opacity:1;transform:scale(1)}
+.bow b{position:absolute;display:block;background:var(--gold);box-shadow:inset 0 -3px 5px rgba(120,70,10,.35)}
+.bow .band{left:-34px;top:-6px;width:68px;height:13px;border-radius:4px}
+.bow .tl{left:-36px;top:-16px;width:32px;height:23px;border-radius:55% 10% 55% 10%;transform:rotate(-16deg)}
+.bow .tr{left:4px;top:-16px;width:32px;height:23px;border-radius:10% 55% 10% 55%;transform:rotate(16deg)}
+.bow .knot{left:-8px;top:-9px;width:16px;height:16px;border-radius:50%;background:#c9963a}
+.bow .t1{left:-13px;top:6px;width:9px;height:36px;transform:rotate(9deg);border-radius:0 0 2px 2px}
+.bow .t2{left:4px;top:6px;width:9px;height:36px;transform:rotate(-9deg);border-radius:0 0 2px 2px}
+
+/* falling petals */
+.petal{position:fixed;z-index:3;top:-30px;width:14px;height:18px;border-radius:70% 0 70% 0;pointer-events:none;
+  background:linear-gradient(135deg,#b13555,#6a0e28);opacity:.9;animation:fall linear infinite}
+@keyframes fall{from{transform:translate3d(0,0,0) rotate(0)}to{transform:translate3d(var(--x),112vh,0) rotate(600deg)}}
+
+/* letter */
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));
+  background:rgba(29,7,16,.7);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .4s}
+.modal.show{opacity:1;pointer-events:auto}
+.paper{width:min(100%,380px);max-height:100%;overflow-y:auto;background-color:var(--paper);color:#4a1020;padding:26px 26px 20px;border-radius:4px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);font-family:Caveat,"Segoe Script",cursive;font-size:22px;line-height:32px;
+  background-image:repeating-linear-gradient(transparent 0 31px,rgba(123,18,48,.12) 31px 32px);
+  transform:translateY(90px) rotate(-3deg) scale(.9);transition:transform .8s cubic-bezier(.2,.9,.3,1)}
+.modal.show .paper{transform:none}
+.paper p{margin:0 0 32px}
+.paper .to{font-size:27px}
+.paper .sign{text-align:right;margin-bottom:6px}
+.polaroid{position:relative;width:170px;margin:0 auto 26px;padding:8px 8px 6px;background:#fff;transform:rotate(-3deg);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.polaroid::before{content:"";position:absolute;top:-10px;left:50%;width:60px;height:20px;margin-left:-30px;background:rgba(226,180,90,.55);transform:rotate(3deg)}
+.polaroid img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.polaroid figcaption{text-align:center;font-size:19px;line-height:28px;margin-top:2px}
+.close{display:block;position:sticky;bottom:0;margin:8px auto 0;padding:6px 24px;border:1.5px solid #7b1230;border-radius:999px;
+  background-color:var(--paper);box-shadow:0 0 0 8px var(--paper);color:#7b1230;
+  font-family:"Cormorant Garamond",Georgia,serif;font-size:18px;font-style:italic}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01s !important;transition-delay:0s !important}
+  .petal{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="shade"></div>
+
+<label class="addphoto" id="addphoto">＋ Bg photo<input type="file" accept="image/*" id="pick"></label>
+<label class="addphoto second" id="addphoto2">＋ Letter photo<input type="file" accept="image/*" id="pick2"></label>
+
+<main>
+  <h1 id="title"></h1>
+  <p class="sub" id="sub"></p>
+  <div class="scene" id="scene">
+    <div class="back"></div>
+    <div class="bouquet" id="bouquet"></div>
+    <div class="pocket"><i class="l"></i><i class="r"></i><i class="b"></i></div>
+    <div class="flap"></div>
+    <div class="seal">♥</div>
+  </div>
+  <button class="go" id="go">Open this babylove!</button>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Letter">
+  <div class="paper">
+    <figure class="polaroid" id="polaroid" hidden><img id="pimg" alt="Baby"><figcaption id="cap"></figcaption></figure>
+    <div id="letter"></div>
+    <button class="close" id="close">Close me</button>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="pet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b8395a"/><stop offset="1" stop-color="#5a0a20"/>
+    </linearGradient>
+    <linearGradient id="pet2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cc4a6c"/><stop offset="1" stop-color="#6e1128"/>
+    </linearGradient>
+    <linearGradient id="pet3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#df6684"/><stop offset="1" stop-color="#7d1730"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<script>
+/* ====== I-EDIT MO DITO ====== */
+var CONFIG = {
+  title: "Happy 1st Monthsary Baby!",
+  sub: "For the most loving and understanding partner in the world",
+  to: "Baby Love",
+  from: "Maganda mong baby ehe",
+  date: "October 11, 2026",
+  caption: "Hi Pogi!",
+  photo: "mylove.jpg",         // picture sa BACKGROUND
+  letterPhoto: "baby.jpg",     // picture sa LOOB ng letter (polaroid)
+  showPicker: false,           // gawing false bago mo ipadala sa kanya
+  paragraphs: [
+    "Baby, Alam kong marami tayong struggles here sa relationship natin, but I know na kaya natin 'to basta magkasama tayo at pareho nating piliin ang isa't isa every day. Hindi naman magiging perfect palagi ang relationship natin, may mga times na magkakaroon tayo ng misunderstandings, tampuhan, at hindi pagkakaintindihan, pero sana kahit gano'n, huwag tayong susuko agad sa isa't isa. I hope na kahit anong challenges ang dumating sa atin, piliin pa rin nating ayusin at intindihin ang isa't isa.",
+    "Mahal na mahal kita, baby, and I will always be here for you no matter what. Thank you for being consistent, for loving me, and for making me feel na hindi ako nag-iisa. Thank you kasi kahit may mga times na sobrang hirap kong intindihin, nandiyan ka pa rin para intindihin ako. I know na hindi ako perfect na girlfriend and may mga times din na mahirap akong pakisamahan, pero thank you kasi you still choose to be patient with me. I really appreciate every little thing that you do for me, kahit minsan hindi ko nasasabi kung gaano ako ka-thankful sa lahat ng efforts mo.",
+    "Thankful din ako kay God kasi binigyan Niya ako ng boyfriend na katulad mo. Someone na I can love, trust, and share my days with. I'm so happy na ikaw yung kasama ko sa journey na 'to, and I hope na marami pa tayong monthsaries and anniversaries na ice-celebrate together. I want to create more memories with you, laugh with you over the simplest things, comfort you kapag pagod ka na, and be someone na pwede mong takbuhan kapag mabigat na ang lahat.",
+    "Baby, I hope you know na proud ako sa'yo, and I will always support you sa mga pangarap mo. Gusto kong makita kang maabot lahat ng goals mo, and I hope na habang inaabot natin yung mga pangarap natin, nandiyan pa rin tayo para sa isa't isa. I want us to grow together, learn from our mistakes, and become better not just for ourselves but also for our relationship.",
+    "Hindi ko man palaging ma-express nang maayos yung feelings ko, please know na genuine lahat ng pagmamahal ko sa'yo. I may not always have the right words to say, pero I will always try my best to show you how much you mean to me. You deserve to be loved properly, appreciated, and understood, and I hope na maiparamdam ko sa'yo 'yon kahit sa maliliit na bagay.",
+    "Happy first monthsary ulit, my baby! Thank you for being part of my life and for giving me another reason to smile. Sana this is just the beginning of something beautiful for us. One month down, and hopefully, many more months and years to go with you. Whatever happens, I hope we never forget why we chose each other in the first place.",
+    "I love you so, so much, baby! More than words can explain. Happy monthsary sa atin, baby ko! Pakiss nga muna, erm, I love you, baby!"
+  ]
+};
+/* ============================ */
+
+var $ = function(id){ return document.getElementById(id); };
+$("title").textContent = CONFIG.title;
+$("sub").textContent = CONFIG.sub;
+$("cap").textContent = CONFIG.caption;
+$("addphoto").hidden = !CONFIG.showPicker;
+$("addphoto2").hidden = !CONFIG.showPicker;
+
+/* photos */
+function setBg(url){
+  $("bg").style.backgroundImage = 'url("' + url + '")';
+  $("bg").classList.add("has");
+}
+function setLetterPhoto(url){
+  $("pimg").src = url;
+  $("polaroid").hidden = false;
+}
+/* sinusubukan ang jpg, jpeg, png, webp kahit alin ang extension */
+function findPhoto(name, done){
+  var base = name.replace(/\.[^.]+$/, "");
+  var list = [name];
+  ["jpg","jpeg","png","webp","JPG","JPEG","PNG"].forEach(function(e){ list.push(base + "." + e); });
+  (function tryNext(l){
+    if(!l.length) return;
+    var im = new Image();
+    im.onload = function(){ done(l[0]); };
+    im.onerror = function(){ tryNext(l.slice(1)); };
+    im.src = l[0];
+  })(list);
+}
+findPhoto(CONFIG.photo, setBg);
+findPhoto(CONFIG.letterPhoto, setLetterPhoto);
+$("pick").addEventListener("change", function(e){
+  var f = e.target.files && e.target.files[0];
+  if(f) setBg(URL.createObjectURL(f));
+});
+$("pick2").addEventListener("change", function(e){
+  var f = e.target.files && e.target.files[0];
+  if(f) setLetterPhoto(URL.createObjectURL(f));
+});
+
+/* flower */
+function flowerSVG(){
+  var ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "-50 -50 100 100");
+  function layer(n, ry, cy, rx, fill, off){
+    for(var i = 0; i < n; i++){
+      var e = document.createElementNS(ns, "ellipse");
+      e.setAttribute("cx", 0); e.setAttribute("cy", cy); e.setAttribute("rx", rx); e.setAttribute("ry", ry);
+      e.setAttribute("fill", fill); e.setAttribute("stroke", "rgba(40,4,16,.4)"); e.setAttribute("stroke-width", ".7");
+      e.setAttribute("transform", "rotate(" + (off + i * 360 / n) + ")");
+      svg.appendChild(e);
+    }
+  }
+  layer(9, 24, -26, 14, "url(#pet)", 0);
+  layer(8, 20, -20, 11.5, "url(#pet2)", 20);
+  layer(6, 14, -13, 9, "url(#pet3)", 40);
+  var c = document.createElementNS(ns, "circle");
+  c.setAttribute("r", 6); c.setAttribute("fill", "#e2b45a"); svg.appendChild(c);
+  return svg;
+}
+
+/* bouquet: greens + flowers */
+function stem(a, h, s, i, green){
+  var d = document.createElement("div");
+  d.className = "stem" + (green ? " green" : "");
+  d.style.setProperty("--a", a + "deg");
+  d.style.setProperty("--h", h + "px");
+  d.style.setProperty("--s", s + "px");
+  d.style.setProperty("--d", (i * 0.09) + "s");
+  var k = document.createElement("div");
+  if(green){ k.className = "leaf"; } else { k.className = "flower"; k.appendChild(flowerSVG()); }
+  d.appendChild(k);
+  $("bouquet").appendChild(d);
+}
+/* greens: angle, height */
+[[-60,112],[-42,172],[-22,212],[22,208],[43,168],[60,108]].forEach(function(g, i){ stem(g[0], g[1], 0, i * 0.6, true); });
+/* flowers: angle, height, size */
+[[-46,128,60],[-35,160,68],[-23,196,76],[-11,222,84],[0,244,92],[11,218,84],[23,192,76],[35,158,68],[46,126,60]]
+  .forEach(function(f, i){ stem(f[0], f[1], f[2], i + 2, false); });
+/* ribbon */
+var bow = document.createElement("div");
+bow.className = "bow";
+bow.innerHTML = '<b class="t1"></b><b class="t2"></b><b class="tl"></b><b class="tr"></b><b class="band"></b><b class="knot"></b>';
+$("bouquet").appendChild(bow);
+
+/* petals */
+function rain(){
+  for(var i = 0; i < 16; i++){
+    var p = document.createElement("div");
+    p.className = "petal";
+    p.style.left = (Math.random() * 100) + "vw";
+    p.style.setProperty("--x", (Math.random() * 120 - 60) + "px");
+    p.style.animationDuration = (9 + Math.random() * 8) + "s";
+    p.style.animationDelay = (Math.random() * 8) + "s";
+    p.style.transform = "scale(" + (0.6 + Math.random() * 0.8) + ")";
+    document.body.appendChild(p);
+  }
+}
+
+/* letter text */
+var L = $("letter");
+function add(cls, text){ var p = document.createElement("p"); if(cls) p.className = cls; p.textContent = text; L.appendChild(p); }
+add("to", "Hello " + CONFIG.to + "!");
+CONFIG.paragraphs.forEach(function(t){ add("", t); });
+add("sign", "To " + CONFIG.from);
+add("sign", CONFIG.date);
+
+/* flow: Open -> bloom -> Click me -> letter */
+var scene = $("scene"), go = $("go"), modal = $("modal"), opened = false;
+function showLetter(v){ modal.classList.toggle("show", v); if(!v) go.textContent = "Read again"; }
+function openEnvelope(){
+  if(opened) return;
+  opened = true; scene.classList.add("open");
+  go.textContent = "Click me!";
+  setTimeout(rain, 1400);
+}
+go.addEventListener("click", function(){ opened ? showLetter(true) : openEnvelope(); });
+scene.addEventListener("click", openEnvelope);
+$("close").addEventListener("click", function(){ showLetter(false); });
+modal.addEventListener("click", function(e){ if(e.target === modal) showLetter(false); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") showLetter(false); });
+</script>
+</body>
+</html>
